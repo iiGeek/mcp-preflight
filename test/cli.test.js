@@ -10,13 +10,39 @@ const path = require('node:path');
 const repo = path.join(__dirname, '..');
 const bin = path.join(repo, 'bin', 'mcp-preflight.js');
 
-function run(args) {
+function run(args, cwd) {
   return spawnSync(process.execPath, [bin, ...args], {
     encoding: 'utf8',
-    cwd: repo,
+    cwd: cwd || repo,
     timeout: 15000,
     env: { ...process.env, NO_COLOR: '1' },
   });
+}
+
+// Cursor's sample config is committed as cursor-mcp.json. The fake home
+// directory is also stored inside the example tree; the audit copy puts it
+// beside the project so paths render as ~/.claude.json rather than home/.claude.json.
+function materializeExample() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-preflight-example-'));
+  const project = path.join(root, 'project');
+  const home = path.join(root, 'home');
+  const src = path.join(repo, 'fixtures', 'example');
+  copyDir(src, project, new Set(['home', 'cursor-mcp.json']));
+  copyDir(path.join(src, 'home'), home);
+  fs.mkdirSync(path.join(project, '.cursor'));
+  fs.copyFileSync(path.join(src, 'cursor-mcp.json'), path.join(project, '.cursor', 'mcp.json'));
+  return { project, home };
+}
+
+function copyDir(src, dest, skip) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (skip && skip.has(entry.name)) continue;
+    const from = path.join(src, entry.name);
+    const to = path.join(dest, entry.name);
+    if (entry.isDirectory()) copyDir(from, to);
+    else if (entry.isFile()) fs.copyFileSync(from, to);
+  }
 }
 
 describe('cli', () => {
@@ -51,13 +77,8 @@ describe('cli', () => {
   });
 
   it('exits 1 for the example project and redacts the fixture secret', () => {
-    const result = run([
-      '--cwd',
-      'fixtures/example',
-      '--home',
-      'fixtures/example/home',
-      '--json',
-    ]);
+    const example = materializeExample();
+    const result = run(['--cwd', example.project, '--home', example.home, '--json']);
     assert.equal(result.status, 1);
     assert.equal(result.stdout.includes('sk-test'), false);
     const body = JSON.parse(result.stdout);
@@ -75,19 +96,28 @@ describe('cli', () => {
     const blocks = [...readme.matchAll(/```text\n([\s\S]*?)```/g)].map((match) => match[1]);
     assert.equal(blocks.length, 2);
 
-    const example = run([
-      '--cwd',
-      'fixtures/example',
-      '--home',
-      'fixtures/example/home',
-      '--no-color',
-    ]);
+    const project = materializeExample();
+    const example = run(['--cwd', project.project, '--home', project.home, '--no-color']);
     assert.equal(example.status, 1);
     assert.equal(example.stdout, blocks[0]);
 
     const live = run(['--only', '--config', 'fixtures/live/mcp.json', '--live', '--no-color']);
     assert.equal(live.status, 0);
     assert.equal(live.stdout, blocks[1]);
+  });
+
+  it('prints project paths relative to cwd when the checkout is inside home', () => {
+    const result = run([
+      '--only',
+      '--config',
+      'fixtures/live/mcp.json',
+      '--home',
+      path.dirname(repo),
+      '--no-color',
+    ]);
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /fixtures\/live\/mcp.json/);
+    assert.equal(result.stdout.includes('~/'), false);
   });
 
   it('accepts the shipped skill without findings', () => {

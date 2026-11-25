@@ -96,10 +96,15 @@ Disabled servers (`disabled: true` or `enabled: false`) are still checked static
 
 ## Example
 
-`fixtures/example` is a small project with a few configs and two skills. From the repository root:
+`fixtures/example` is a small project with a few configs and two skills. Cursor's sample config is stored as `fixtures/example/cursor-mcp.json` so this repository does not contain a `.cursor` directory. The command below copies the example and puts that file where Cursor would read it:
 
 ```bash
-node bin/mcp-preflight.js --cwd fixtures/example --home fixtures/example/home --no-color
+tmp=$(mktemp -d)
+mkdir -p "$tmp/project/.cursor"
+cp -a fixtures/example/.claude fixtures/example/.codex fixtures/example/.mcp.json "$tmp/project/"
+cp -a fixtures/example/home "$tmp/home"
+cp fixtures/example/cursor-mcp.json "$tmp/project/.cursor/mcp.json"
+node bin/mcp-preflight.js --cwd "$tmp/project" --home "$tmp/home" --no-color
 ```
 
 ```text
