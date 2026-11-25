@@ -1,0 +1,32 @@
+{
+  "name": "mcp-preflight",
+  "version": "0.1.0",
+  "description": "Audit local MCP server configuration and agent skills.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iiGeek/mcp-preflight.git"
+  },
+  "bin": {
+    "mcp-preflight": "bin/mcp-preflight.js"
+  },
+  "main": "lib/run.js",
+  "files": [
+    "bin",
+    "lib",
+    "skill",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "mcp-preflight": "node bin/mcp-preflight.js"
+  },
+  "keywords": [
+    "mcp",
+    "cli"
+  ]
+}

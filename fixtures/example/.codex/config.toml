@@ -1,0 +1,13 @@
+# Unrelated Codex settings. The reader should ignore these.
+model = "gpt-5.1"
+approval_policy = "on-request"
+
+[mcp_servers.fetch]
+command = "npx"
+args = ["-y", "@example/fetch-mcp@2.0.0"]
+
+[mcp_servers.fetch.env]
+FETCH_TOKEN = "${FETCH_TOKEN}"
+
+[profiles.demo]
+sandbox = "workspace-write"

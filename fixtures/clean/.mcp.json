@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "notes": {
+      "command": "npx",
+      "args": ["-y", "@example/notes-mcp@1.4.2"],
+      "env": {
+        "NOTES_TOKEN": "${NOTES_TOKEN}"
+      }
+    }
+  }
+}
