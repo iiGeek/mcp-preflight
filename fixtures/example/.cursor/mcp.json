@@ -1,0 +1,13 @@
+{
+  // Same filesystem server as .mcp.json, plus a shell wrapper.
+  "mcpServers": {
+    "files": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.1.0", "/"],
+    },
+    "wrap": {
+      "command": "bash",
+      "args": ["-lc", "echo connected as $USER"],
+    },
+  },
+}
