@@ -1,10 +1,23 @@
-# mcp-preflight
+# 🛡️ mcp-preflight
 
-`mcp-preflight` audits MCP server configuration and agent skills on the local machine. It looks for inline secrets, broad filesystem access, unpinned packages, cleartext remote URLs, shell interpolation, duplicate servers, and skill instructions that are unsafe or hard to see. A run finishes in seconds. It does not contact the network unless you pass `--live`.
+### A quick security check for your MCP servers and agent skills.
 
-The program is plain Node.js 18 or newer and has no runtime dependencies.
+`mcp-preflight` audits MCP server configurations and agent skills on your local machine. In seconds, it helps uncover exposed secrets, excessive filesystem permissions, unpinned packages, unencrypted remote connections, shell interpolation, duplicate servers, and unsafe or concealed skill instructions.
 
-## Install
+Built with **Node.js 18+**, it has **zero runtime dependencies**. Audits run locally by default; network activity is only possible when you explicitly enable `--live`.
+
+## ✨ Highlights
+
+- 🔐 **Secret detection** — Identify credentials embedded in configurations.
+- 📂 **Filesystem checks** — Flag access to the filesystem root or home directory.
+- 📦 **Package version checks** — Find packages launched without a version pin.
+- 🌐 **Connection checks** — Detect unencrypted remote HTTP and WebSocket URLs.
+- 🧩 **Skill inspection** — Surface risky instructions, hidden Unicode, and confusable characters.
+- 🔎 **Optional live inspection** — Discover tools exposed by enabled stdio servers.
+- 📊 **Readable and JSON reports** — Review findings in your terminal or process them programmatically.
+- ⚡ **Lightweight runtime** — Plain Node.js, with no runtime dependencies.
+
+## 🚀 Installation
 
 The package is not published to npm. Run it straight from GitHub with npx, pinned to a release tag:
 
@@ -26,7 +39,7 @@ Without linking, run `node bin/mcp-preflight.js` from the clone.
 
 The usage examples below assume `mcp-preflight` is on your `PATH`. With npx, replace it with `npx github:iiGeek/mcp-preflight#v0.1.0`.
 
-## Usage
+## ⚙️ Usage
 
 Run it in a project directory. It discovers configs and `SKILL.md` files in that project and under your home directory.
 
@@ -42,9 +55,9 @@ mcp-preflight --live --timeout 8000
 
 `--live` starts each enabled stdio server, performs the MCP handshake (`initialize`, then `notifications/initialized`), and calls `tools/list`, following `nextCursor` for up to 50 pages. Remote HTTP servers are not contacted. The child receives `PATH` and a short list of locale and temp variables, plus the env block from the config. `${VAR}` and `${env:VAR}` in that block are filled from the parent process. Review the static findings before using `--live` on a config you do not trust. Probes run one at a time. On timeout the process group is terminated.
 
-## What it checks
+## 🧪 Security checks
 
-### Servers
+### MCP server configurations
 
 | Rule | Severity | Meaning |
 | --- | --- | --- |
@@ -63,7 +76,7 @@ mcp-preflight --live --timeout 8000
 | `annotation-mismatch` | medium | With `--live`, `readOnlyHint` is true but the name suggests a destructive action. Annotations are hints, not a guarantee. |
 | `live-failed` | medium | The stdio probe did not return `tools/list` before the timeout. |
 
-### Skills
+### Agent skills
 
 | Rule | Severity | Meaning |
 | --- | --- | --- |
@@ -74,11 +87,11 @@ mcp-preflight --live --timeout 8000
 | `homoglyph` | medium | A token mixes ASCII letters with confusable Cyrillic or Greek letters. |
 | `oversized-skill` | medium, or high past 80,000 characters | `SKILL.md` is at least 24,000 characters. The token figure is the JavaScript string length divided by 4. |
 
-### Live tool cost
+### 📊 Live tool size estimates
 
 `--live` prints the tool count and an estimated token cost. Each tool costs `Math.ceil(JSON.stringify(tool).length / 4)`, and the server total is the sum. This is a rough stand-in for prompt size, not a model tokenizer. At most 500 tools are counted.
 
-## Where it looks
+## 📍 Configuration discovery
 
 Project directory:
 
@@ -103,7 +116,7 @@ Skills are `SKILL.md` files under `.claude/skills`, `.cursor/skills`, `.agents/s
 
 Disabled servers (`disabled: true` or `enabled: false`) are still checked statically and are not started by `--live`.
 
-## Example
+## 💻 Examples
 
 `fixtures/example` is a small project with a few configs and two skills. Cursor's sample config is stored as `fixtures/example/cursor-mcp.json` so this repository does not contain a `.cursor` directory. The command below copies the example and puts that file where Cursor would read it:
 
@@ -239,7 +252,7 @@ Summary
 
 That run exits 0. Medium findings do not fail the process. `get_note` sets both hints, so only `delete_note` is reported.
 
-## JSON and exit codes
+## 📄 JSON output and exit codes
 
 `--json` writes the report to stdout and nothing else. Env values are omitted. Token-shaped strings in arguments and URLs are replaced with `<redacted>`.
 
@@ -251,7 +264,7 @@ That run exits 0. Medium findings do not fail the process. `get_note` sets both 
 
 `--severity` filters the printed findings. It does not change the exit code. In the JSON report, `summary` always counts every severity, and `summary.ok` is true when there are no high findings.
 
-## Limitations
+## 🧭 Limitations
 
 The checks are heuristics. A report with no findings does not mean a server or skill is safe, and a finding can be wrong.
 
@@ -264,7 +277,7 @@ The checks are heuristics. A report with no findings does not mean a server or s
 - Skill checks are text searches. They do not run the skill. A negation such as "do not" just before a match is skipped, so a real instruction worded that way can be missed.
 - The TOML reader does not implement all of TOML. It targets Codex `mcp_servers` tables.
 
-## Development
+## 🛠️ Development
 
 ```bash
 npm test
