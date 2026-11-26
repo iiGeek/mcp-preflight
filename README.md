@@ -6,16 +6,25 @@ The program is plain Node.js 18 or newer and has no runtime dependencies.
 
 ## Install
 
+The package is not published to npm. Run it straight from GitHub with npx, pinned to a release tag:
+
 ```bash
-npm install -g mcp-preflight
+npx github:iiGeek/mcp-preflight#v0.1.0
+npx github:iiGeek/mcp-preflight#v0.1.0 --json
+```
+
+Or clone the repository and link the command:
+
+```bash
+git clone https://github.com/iiGeek/mcp-preflight.git
+cd mcp-preflight
+npm link
 mcp-preflight --help
 ```
 
-Without a global install:
+Without linking, run `node bin/mcp-preflight.js` from the clone.
 
-```bash
-npx mcp-preflight
-```
+The usage examples below assume `mcp-preflight` is on your `PATH`. With npx, replace it with `npx github:iiGeek/mcp-preflight#v0.1.0`.
 
 ## Usage
 

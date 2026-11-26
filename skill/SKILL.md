@@ -12,16 +12,16 @@ Audit MCP servers and skills before trusting them. The command only reads config
 From the project to audit:
 
 ```bash
-npx mcp-preflight
-npx mcp-preflight --json
-npx mcp-preflight --config .mcp.json --only
-npx mcp-preflight --skills .claude/skills --only
+npx github:iiGeek/mcp-preflight#v0.1.0
+npx github:iiGeek/mcp-preflight#v0.1.0 --json
+npx github:iiGeek/mcp-preflight#v0.1.0 --config .mcp.json --only
+npx github:iiGeek/mcp-preflight#v0.1.0 --skills .claude/skills --only
 ```
 
 Use `--live` only after you have read the static findings. It executes each enabled stdio server, completes the MCP handshake, and calls `tools/list`.
 
 ```bash
-npx mcp-preflight --live --timeout 8000
+npx github:iiGeek/mcp-preflight#v0.1.0 --live --timeout 8000
 ```
 
 `--config` and `--skills` are relative to the shell's current directory. `--cwd` and `--home` change discovery only. Pass `--only` when you want to ignore the machine's other configs, which matters in CI and in this repository.
@@ -70,4 +70,4 @@ Fix the config or the skill, then run the same command again. Do not edit this t
 
 A run with no findings is not proof that a server is safe. The checks are name and text heuristics. `--live` lists tools; it does not call them, and it does not inspect the server's code.
 
-When the user wants this in CI, run `npx mcp-preflight --json` and fail the job on exit code 1. Use `--only` with explicit `--config` and `--skills` paths so the job does not read a developer's home directory.
+When the user wants this in CI, run `npx github:iiGeek/mcp-preflight#v0.1.0 --json` and fail the job on exit code 1. Use `--only` with explicit `--config` and `--skills` paths so the job does not read a developer's home directory.
